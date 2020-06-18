@@ -1,0 +1,100 @@
+---
+title: "LAUSD Covid-19 Resource Map 2020"
+author: "Carlos Calvo-Hernandez"
+affiliation: "Pardee RAND Graduate School"
+email: "ccalvo@prgs.edu"
+code_folding: "show"
+output: 
+  html_notebook:
+    toc: yes
+---
+```{r setup, include=FALSE}
+inline_hook <- function(x) {
+  if (is.numeric(x)) {
+    format(x, digits = 3, big.mark = ",")
+  } else x
+}
+knitr::knit_hooks$set(inline = inline_hook)
+knitr::opts_chunk$set(echo = TRUE)
+# Load libraries
+library(tidyverse)
+library(ggmap)
+library(readxl)
+library(glue)
+library(janitor)
+```
+
+
+## Introduction
+
+This document serves as the documentation for the "LAUSD Resource Mapping" project. This project consists of developing a tool to visualize and map resources available for LAUSD parents and families during the COVID-19 pandemic. This work was done for the LAUSD Department of Student Health and Human Services by the Tech + Narrative Lab at the Pardee RAND Graduate School. Developed by Carlos Calvo-Hernandez and Lucas Aaron, under the direction of Todd Richmond.
+
+The tool selected is an RShiny app that is capable of concurrently showing geolocated and online resources on the same deployable, searchable, and automated website. The intent of this document is to record the steps that went into developing, and deploying the tool.
+
+### Why R?
+
+`R` is an open-source programming language and environment for statistical computing and graphics. `R` provides a wide variety of statistical (linear and nonlinear modelling, classical statistical tests, time-series analysis, classification, clustering, …) and graphical techniques, and is highly extensible.
+
+One of `R`’s strengths is the ease with which well-designed publication-quality plots can be produced, including mathematical symbols and formulae where needed. Great care has been taken over the defaults for the minor design choices in graphics, but the user retains full control.
+
+`R` is an integrated suite of software facilities for data manipulation, calculation and graphical display. It includes:
+
+* an effective data handling and storage facility,
+* a suite of operators for calculations on arrays, in particular matrices,
+* a large, coherent, integrated collection of intermediate tools for data analysis,
+* graphical facilities for data analysis and display either on-screen or on hardcopy, and
+* a well-developed, simple and effective programming language which includes conditionals, loops, user-defined recursive functions and input and output facilities.
+
+See more at the [The R-Project for Statistical Computing](https://www.r-project.org)
+
+### Why RStudio?
+
+RStudio is an integrated development environment (IDE) for `R`. It provides standard features like a console, a multiple script file interface, environmental variable display, as well as both project management and version control tools. RStudio also provides literate programming tools, allowing for the combination of `R` scripts, output, text and images into both reports and presentations which is incredibly powerful for designing reproducible research scripts. RStudio is also the company that maintains the IDE and many of the open-source packages and libraries used throughout `R`'s ecosystem.
+
+For more information vist [RStudio.com](https://rstudio.com)
+
+#### What is Shiny?
+
+Shiny is an `R` package from RStudio (the company) that makes it incredibly easy to build interactive web applications with `R`. You can host standalone apps on a webpage or embed them in `R` Markdown documents or build dashboards. You can also extend your Shiny apps with CSS themes, htmlwidgets, and JavaScript actions. Shiny combines the computational power of `R` with the interactivity of the modern web. Shiny apps are easy to write. No web development skills are required.
+
+Find more about it at [Shiny from RStudio](https://shiny.rstudio.com)
+
+This Shiny app will be deployed to [shinyapps.io](https://www.shinyapps.io), an easy-to-use, secure, and scalable RStudio-managed dedicated server for hosting Shiny apps. No hardware, installation, or annual purchase contract required. The "FREE" suscription tier will be used to initially deploy the app. If the app needs to be scaled up, it might be worth to pay for larger storage and hosting services. More information can be found at the [Pricing](https://www.shinyapps.io/#pricing) of [shinyapps.io](https://www.shinyapps.io).
+
+
+## Data
+
+The original data provided by LAUSD was cleaned and geolocated through a script called `geocoding.R`. The package `ggmap` was used, which allows the user to connect with Google's API and download data from Google Maps. An address is passed to the API and the longitud and latitude are returned. Before using `ggmap`'s function `mutate_geocode`, the user needs to register a developer key from Google's [Developer website](https://developers.google.com). Specifically from the [Maps Platform](https://cloud.google.com/maps-platform), and passed to the `register_google` function of the `ggmap` package. Type `?register_google` in `R`'s console for more info.
+
+> NOTE: All data cleaning/wrangling script are on the `R` folder of the app.
+
+This data is NOT the data displayed on the latest version of the app. This was the data that was cleaned and wrangled for Pepperdine University's Crisis website.
+
+The data used for this app was received on 2020/05/28 (file: `SHHS Partner Services_051220.xlsx`) from William Celestine, Director of Wellness Programs in the Student Health and Human Services at Los Angeles Unified School District. 
+
+The file had to be cleaned, wrangled, and geocoded to be suitable for display in the app. The script used for this is `cleaning.R`. Details and specific steps are included as comments in this script. The output of this script is a csv file called `resources_full.csv` that needs to be in the `data` folder of the app since that is the file that the app uses to work.
+
+One important aspect about this file is it's structure. Given the type of data, and the way the app is setup, `resources_full.csv` has to have a consistent layout and formatting for columns and column names. When updating data, be very careful to not change the names or order of the columns, and follow the specifications stated in `cleaning.R`. File should always be named `resources_full.csv` be a true CSV file, and respect column naming conventions (variable names easier to handle (i.e. no spaces, lowercase, unique)).
+
+Another important comment about `cleaning.R`. If rerun with new data, the raw data file has to be the only Excel (.xlsx) file in the `raw` folder of the app for the cleaning and wrangling to work. Also, column names and structure has to be the same as `SHHS Partner Services_051220.xlsx`.
+
+
+## Shiny App
+
+### Basics
+
+Every Shiny app is divided in two main parts, UI and Server. Both are coded independently but are linked through unique object IDs. Unsurprisingly, the UI section takes care of rendering the website the final user is going to interact with, while the Server section handles the backend process that creates the functionality of the UI. The file that contains all of the code that handles the app is `app.R` and has to be stored in the root folder of the app when it's deployed. Changes to this code base should be made with care since minor changes can make the app non-responsive.
+
+### Deployment
+
+This section will cover how to deploy the app from its current state as a Github repository.
+
+#### Github
+
+
+
+## Troubleshooting
+
+
+
+
