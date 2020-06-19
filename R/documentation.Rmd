@@ -1,12 +1,15 @@
 ---
-title: "LAUSD Covid-19 Resource Map 2020"
+title: "LAUSD COVID-19 Resource Map 2020"
 author: "Carlos Calvo-Hernandez"
-affiliation: "Pardee RAND Graduate School"
-email: "ccalvo@prgs.edu"
-code_folding: "show"
-output: 
+code_folding: show
+output:
+  html_document:
+    df_print: paged
+    toc: yes
   html_notebook:
     toc: yes
+email: ccalvo@prgs.edu
+affiliation: Pardee RAND Graduate School
 ---
 ```{r setup, include=FALSE}
 inline_hook <- function(x) {
@@ -15,8 +18,9 @@ inline_hook <- function(x) {
   } else x
 }
 knitr::knit_hooks$set(inline = inline_hook)
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, include = TRUE)
 # Load libraries
+library(knitr)
 library(tidyverse)
 library(ggmap)
 library(readxl)
@@ -59,42 +63,143 @@ Shiny is an `R` package from RStudio (the company) that makes it incredibly easy
 
 Find more about it at [Shiny from RStudio](https://shiny.rstudio.com)
 
-This Shiny app will be deployed to [shinyapps.io](https://www.shinyapps.io), an easy-to-use, secure, and scalable RStudio-managed dedicated server for hosting Shiny apps. No hardware, installation, or annual purchase contract required. The "FREE" suscription tier will be used to initially deploy the app. If the app needs to be scaled up, it might be worth to pay for larger storage and hosting services. More information can be found at the [Pricing](https://www.shinyapps.io/#pricing) of [shinyapps.io](https://www.shinyapps.io).
+This Shiny app will be deployed to [shinyapps.io](https://www.shinyapps.io), an easy-to-use, secure, and scalable RStudio-managed dedicated server for hosting Shiny apps. No hardware, installation, or annual purchase contract required. shinyapps.io is a self-service platform that makes it easy for you to share your shiny applications on the web in just a few minutes. Many customers use shinyapps.io to prove out some concepts, build out a prototype, or just run it for a short period of time for their own purposes, while others are using it as a core component of their analytical offerings within a larger online property.
+
+The "FREE" subscription tier will be used initially to deploy the app. If the app needs to be scaled up, it might be worth paying for larger storage and hosting services. More information can be found at the [Pricing](https://www.shinyapps.io/#pricing) page of [shinyapps.io](https://www.shinyapps.io).
 
 
 ## Data
 
-The original data provided by LAUSD was cleaned and geolocated through a script called `geocoding.R`. The package `ggmap` was used, which allows the user to connect with Google's API and download data from Google Maps. An address is passed to the API and the longitud and latitude are returned. Before using `ggmap`'s function `mutate_geocode`, the user needs to register a developer key from Google's [Developer website](https://developers.google.com). Specifically from the [Maps Platform](https://cloud.google.com/maps-platform), and passed to the `register_google` function of the `ggmap` package. Type `?register_google` in `R`'s console for more info.
+The original data provided by LAUSD was cleaned and geolocated through a script called `geocoding.R`. The package `ggmap` was used, which allows the user to connect with Google's API and download data from Google Maps. An address is passed to the API and the longitude and latitude are returned. Before using `ggmap`'s function `mutate_geocode`, the user needs to register a developer key from Google's [Developer website](https://developers.google.com), specifically from the [Maps Platform](https://cloud.google.com/maps-platform), and passed to the `register_google` function of the `ggmap` package. Type `?register_google` in `R`'s console for more information.
 
-> NOTE: All data cleaning/wrangling script are on the `R` folder of the app.
+> NOTE: All data cleaning/wrangling/documentation files are on the `R` folder of the app.
 
 This data is NOT the data displayed on the latest version of the app. This was the data that was cleaned and wrangled for Pepperdine University's Crisis website.
 
 The data used for this app was received on 2020/05/28 (file: `SHHS Partner Services_051220.xlsx`) from William Celestine, Director of Wellness Programs in the Student Health and Human Services at Los Angeles Unified School District. 
 
-The file had to be cleaned, wrangled, and geocoded to be suitable for display in the app. The script used for this is `cleaning.R`. Details and specific steps are included as comments in this script. The output of this script is a csv file called `resources_full.csv` that needs to be in the `data` folder of the app since that is the file that the app uses to work.
+The file had to be cleaned, wrangled, and geocoded to be suitable for display in the app. The script used for this is `cleaning.R`. Details and specific steps are included as comments in this script. The output of this script is a CSV file called `resources_full.csv` that needs to be in the `data` folder of the app since that is the file that the app uses to work.
 
-One important aspect about this file is it's structure. Given the type of data, and the way the app is setup, `resources_full.csv` has to have a consistent layout and formatting for columns and column names. When updating data, be very careful to not change the names or order of the columns, and follow the specifications stated in `cleaning.R`. File should always be named `resources_full.csv` be a true CSV file, and respect column naming conventions (variable names easier to handle (i.e. no spaces, lowercase, unique)).
+One important aspect about this file is its structure. Given the type of data, and the way the app is set up, the file `resources_full.csv` has to have a consistent layout and formatting for columns and column names. When updating data, be very careful not to change the names or order of the columns, and follow the specifications stated in `cleaning.R`. The file should always be named `resources_full.csv` and be a true CSV file, and respect column naming conventions (variable names that are easier to handle (i.e. no spaces, lowercase, unique)).
 
-Another important comment about `cleaning.R`. If rerun with new data, the raw data file has to be the only Excel (.xlsx) file in the `raw` folder of the app for the cleaning and wrangling to work. Also, column names and structure has to be the same as `SHHS Partner Services_051220.xlsx`.
+Here is an example of the column names and formatting:
+
+```{r, message=FALSE}
+df <- read_tsv(here::here("/data/resources_full.csv"))
+head(df)
+```
+
+
+Another important comment about `cleaning.R`: if rerun with new data, the raw data file has to be the only Excel (.xlsx) file in the `raw` folder of the app for the cleaning and wrangling to work. Also, column names and structure have to be the same as `SHHS Partner Services_051220.xlsx`.
 
 
 ## Shiny App
 
 ### Basics
 
-Every Shiny app is divided in two main parts, UI and Server. Both are coded independently but are linked through unique object IDs. Unsurprisingly, the UI section takes care of rendering the website the final user is going to interact with, while the Server section handles the backend process that creates the functionality of the UI. The file that contains all of the code that handles the app is `app.R` and has to be stored in the root folder of the app when it's deployed. Changes to this code base should be made with care since minor changes can make the app non-responsive.
+Every Shiny app is divided in two main parts, UI and Server. Both are coded independently but are linked through unique object IDs. Unsurprisingly, the UI section takes care of rendering the website the final user is going to interact with, while the Server section handles the backend process that creates the functionality of the UI. The file that contains all of the code that handles the app is `app.R` and has to be stored in the root folder of the app when it's deployed. Changes to the code base should be made with care since minor changes can make the app non-responsive.
+
+There are three one-time steps that need to be taken to successfully deploy the app to the internet.
+
+1. Create an RStudio Cloud account to manage the code base. RStudio Cloud is a remote RStudio instance that allows install-free interaction with RStudio. More information at [RStudio Cloud](https://rstudio.cloud)
+
+2. Create a [shinyapps.io](https://www.shinyapps.io) account to host the app on the web. `shinyapps.io` includes a Dashboard where you can track metrics, settings, and logs for the apps deployed to your account. Find more information about creating an account [here](https://docs.rstudio.com/shinyapps.io/getting-started.html#CreateAccount).
+
+3. Create a [Github.com](https://github.com) account to keep track of version control and to rely on a centralized repository. This option is not necessary but I highly recommend using Github to keep track of the code and the possible updates to the data. It will make your lives easier in the future. I will proceed as if this step was taken. For an introduction to Github with R see ["Happy Git and GitHub for the useR"](https://happygitwithr.com) by Jenny Bryan and Jim Hester.
 
 ### Deployment
 
-This section will cover how to deploy the app from its current state as a Github repository.
+This section will cover how to deploy the app from its current state as a Github repository (repo).
 
 #### Github
 
+The current repo of the code is on my personal [Github page](https://github.com/carlosecalvo). The URL is [https://github.com/carlosecalvo/lausd-shiny](https://github.com/carlosecalvo/lausd-shiny). 
+
+
+First, log in to Github with your account. Then navigate to [https://github.com/carlosecalvo/lausd-shiny](https://github.com/carlosecalvo/lausd-shiny), and click on "Fork" at the top right of the page. 
+
+```{r}
+include_graphics(here::here("/data/img/fork.png"))
+```
+
+"Forking" a repo creates a copy of the original repo on your own Github account without having to download anything while keeping track of all the files in the original repo. Now you have your own copy of the Shiny app ready for anything. Make sure you are on your own repo website (it has to be something like `github.com/your_user_name/lausd-shiny`), and click on the green "Clone or Download" button and copy the HTTPS URL to your clipboard.
+
+```{r}
+include_graphics(here::here("/data/img/github-clone.png"))
+```
+
+
+#### RStudio Cloud
+
+Now, log in to your account at [RStudio Cloud](https://rstudio.cloud), and let's create a new home for your Shiny app code. Click on the arrow next to "New Project" and then select "New Project from Git Repo".
+
+
+```{r}
+include_graphics(here::here("/data/img/cloud-repo.png"))
+```
+
+In the box "New Project from Git Repo", paste the HTTPS URL from your Github repo and click OK. This will create, deploy, and open the project. It might take a couple minutes to load everything.
+
+```{r}
+include_graphics(here::here("/data/img/cloud-clone.png"))
+```
+
+After it's done you will see your workspace with a new R session in an RStudio instance (all on your browser!). Name your project at the top of the page after "Your Workspace" and you're ready to go. Here you can edit the code, open files, preview your changes, etc. The most basic thing we will use this for is to deploy the Shiny app to `shinyapps.io`.
+
+
+```{r}
+include_graphics(here::here("/data/img/cloud-workspace.png"))
+```
+
+> NOTE: To keep your Github repo and your RStudio Cloud project synced, check out ["Happy Git and GitHub for the useR"](https://happygitwithr.com) to see how to commit and push your changes to Github.
+
+Type the following code into the console to install the necessary packages. Wait for the `>` to appear.
+
+```
+install.packages(c("tidyverse", "ggmap", "janitor", "DT", "glue", "here", "leaflet", "RColorBrewer", "shiny", "shinycssloaders", "shinythemes"))
+```
+
+#### Deploying to shinyapps.io
+
+> For more information about `shinyapps.io` functionality and options go to [shinyapps.io User Guide](https://docs.rstudio.com/shinyapps.io/).
+
+On your RStudio Cloud Project, type the following on the "Console":
+
+```
+install.packages('rsconnect')
+```
+
+When you see the `>` character, it's done.
+
+Now, follow the steps from the User Guide ["Deploying applications"](https://docs.rstudio.com/shinyapps.io/getting-started.html#deploying-applications) section and link your `shinyapps.io` account with your RStudio Cloud project we created in the step above. (I recommend Method 1.)
+
+Once you've linked your accounts, open the file `app.R` by clicking on it on the "Files" tab on the bottom right panel. Now on to deploy it to `shinyapps.io`. Click on the blue icon of the taskbar of the `app.R`  panel. and click on "Publish Application..." (An "Install Required Packages" window might pop-up. If it does, just click "Yes" and RStudio will deal with the rest.)
+
+```{r}
+include_graphics(here::here("/data/img/cloud-publish.png"))
+```
+
+> NOTE: If you see the yellow stripe saying that packages are "not installed", click "Install" and wait for the console to show the `>` symbol again.
+
+After it finishes, a "Publish to Server" window will appear. Select the files you want to push to `shinyapps.io` (REMEMBER: the required files are `app.R`, the `www` folder and its contents, and the `data` folder). I suggest selecting everything.
+
+```{r}
+include_graphics(here::here("/data/img/cloud-publish-files.png"))
+```
+
+As you can see from the screen capture, your `shinyapps.io` account should be prepopulated in the "Publish From Account" field. Change the title of the project and click Publish.
+
+> The title you choose here will be the identifying section in the `shinyapps.io` URL (e.g. `carloscalvo.shinyapps.io/lausd-shiny)
+
+Now sit back and wait for the app to be deployed by RStudio Cloud to your `shinyapps.io` account. When it is successful, the website should open up on your default internet browser. And that's it, now you have a functional Shiny app on the internet. 
+
+### Maintaining your Shiny app
+
+Log in to [shinyapps.io](https://www.shinyapps.io) and use your Dashboard to manage and maintain your app. There you can see usage metrics, and deployment settings. For more information, check out [shinyapps.io User Guide](https://docs.rstudio.com/shinyapps.io/).
 
 
 ## Troubleshooting
 
-
+(@) If you run into errors on the "Deploy" tab, just go to the "Console" tab and `install.packages()` the needed packages and try publishing again.
 
 
