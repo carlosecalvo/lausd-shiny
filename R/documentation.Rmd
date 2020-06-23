@@ -189,7 +189,7 @@ include_graphics(here::here("/data/img/cloud-publish-files.png"))
 
 As you can see from the screen capture, your `shinyapps.io` account should be prepopulated in the "Publish From Account" field. Change the title of the project and click Publish.
 
-> The title you choose here will be the identifying section in the `shinyapps.io` URL (e.g. `carloscalvo.shinyapps.io/lausd-shiny)
+> The title you choose here will be the identifying section in the `shinyapps.io` URL (e.g. `carloscalvo.shinyapps.io/lausd-shiny`)
 
 Now sit back and wait for the app to be deployed by RStudio Cloud to your `shinyapps.io` account. When it is successful, the website should open up on your default internet browser. And that's it, now you have a functional Shiny app on the internet. 
 

@@ -69,7 +69,7 @@ lausd <- tibble(name = "LAUSD Dept. of Student Health and Human Services",
                 category = "All") 
 
 ####### UI ######
-ui <- fluidPage(shinythemes::themeSelector(),
+ui <- fluidPage(theme = shinytheme("cosmo"), # You can change the theme here
 
 
   navbarPage("LAUSD Resource Dashboard", id = "nav", 
@@ -95,7 +95,7 @@ ui <- fluidPage(shinythemes::themeSelector(),
                          h6(HTML("<br/>")),
 
                          
-                         checkboxGroupInput("checkbox", label = NULL, choices = temp, selected = NULL)
+                         checkboxGroupInput("checkbox", label = NULL, choices = temp[order(temp)], selected = NULL)
                         ),
             # Second, the "Offline-only Resources" table
            absolutePanel(id = "offline", class = "panel panel-default", fixed = FALSE,
@@ -117,7 +117,7 @@ ui <- fluidPage(shinythemes::themeSelector(),
                  # Input selectors at the top of the page
                  fluidRow(
                    column(3,
-                          selectInput("source", "Category", c("All Categories" = "", structure(temp)), multiple=TRUE)
+                          selectInput("source", "Category", c("All Categories" = "", structure(temp[order(temp)])), multiple=TRUE)
                    ),
                    column(3,
                           selectInput("cities", "Cities", c("All cities"=""), multiple=TRUE)
