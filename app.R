@@ -18,15 +18,15 @@ library(DT)
 ## Check github.com/bborgesr/employee-dir
 ## "cats" has to be a named list
 
-cats <- list("Food" = "Food Resources", 
+cats <- list("Food" = c("Food Resources", "Food"), 
              "Housing" = "Housing", 
              "Financial" = "Financial", 
-             "Physical Health" = c("Health Care", "Hygiene"), 
+             "Physical Health" = c("Health Care", "Hygiene", "Physical Health"), 
              "Mental Health" = "Mental Health", 
              "Legal" = c("Legal", "Undocumented", "Domestic Violence Human Trafficking"), 
              "Educational" = c("Educational", "FamilySource"), 
-             "Student Enrollment" = "YouthSource",
-             "Diversity" = "LGBTQ",
+             "Student Enrollment" = c("YouthSource", "Student Enrollment"),
+             "Diversity" = c("LGBTQ", "Diversity"),
              "Other" = c("District Resources", "Other", "Foster Youth", "Internet and Utility")
 )
 
@@ -37,7 +37,7 @@ cats <- list("Food" = "Food Resources",
 # %>% 
 # mutate(category = if_else(partner_type == "new_category", "new_category", category))
 
-resources <- read_tsv(glue(here(),"/data/resources_full.csv")) %>% 
+resources <- read_csv(glue(here(),"/data/resources_full.csv")) %>% 
   mutate(category = if_else(partner_type %in% cats$Food, names(cats[1]),
                             if_else(partner_type %in% cats$Housing, names(cats[2]),
                             if_else(partner_type %in% cats$Financial, names(cats[3]),
